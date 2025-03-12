@@ -1,31 +1,26 @@
 <?php
 
 namespace App\Http\Controllers;
-use Illuminate\Support\Facades\Http;
+
+use App\Services\ZohoAuthService;
 use Illuminate\Http\Request;
 
 class FrontendController extends Controller
 {
-    public function showDashboard()
+    protected $zohoAuthService;
+
+    public function __construct(ZohoAuthService $zohoAuthService)
     {
-        $accessToken = env('ZOHO_ACCESS_TOKEN');
-
-        // Отримуємо список акаунтів
-        $accountsResponse = Http::withHeaders([
-            'Authorization' => "Bearer $accessToken",
-            'Content-Type' => 'application/json',
-        ])->get(env('ZOHO_API_BASE_URL') . "/crm/v2/Accounts");
-
-        // Отримуємо список угод
-        $dealsResponse = Http::withHeaders([
-            'Authorization' => "Bearer $accessToken",
-            'Content-Type' => 'application/json',
-        ])->get(env('ZOHO_API_BASE_URL') . "/crm/v2/Deals");
-
-        return view('dashboard', [
-            'accounts' => $accountsResponse->json()['data'] ?? [],
-            'deals' => $dealsResponse->json()['data'] ?? []
-        ]);
+        $this->zohoAuthService = $zohoAuthService;
     }
 
+    public function showDashboard()
+    {
+        try {
+            $token = $this->zohoAuthService->getAccessToken();
+            return view('dashboard', compact('token'));
+        } catch (\Exception $e) {
+            return redirect()->route('error')->with('error', 'Не вдалося отримати токен');
+        }
+    }
 }
