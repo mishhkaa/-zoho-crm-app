@@ -119,7 +119,7 @@ class ZohoController extends Controller
             'data' => [[
                 'Deal_Name' => $request->Deal_Name,
                 'Stage' => $request->Stage,
-                'Account_Id' => $request->Account_Id, // ✅ Виправлено на Account_Id
+                'Account_Id' => $request->Account_Id,
             ]]
         ]);
     
